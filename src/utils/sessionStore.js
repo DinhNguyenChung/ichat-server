@@ -1,12 +1,20 @@
 const Redis = require("ioredis");
 
-const redis = new Redis({
-  host: "localhost",
-  port: 6379,
+// Sử dụng biến môi trường từ Railway
+const redis = new Redis(process.env.REDIS_URL, {
   maxRetriesPerRequest: 5,
   retryStrategy(times) {
     return Math.min(times * 50, 2000);
   },
+});
+
+// Bắt lỗi kết nối Redis
+redis.on("connect", () => {
+  console.log("✅ Kết nối Redis thành công");
+});
+
+redis.on("error", (err) => {
+  console.error("❌ Redis lỗi:", err);
 });
 
 module.exports = {
