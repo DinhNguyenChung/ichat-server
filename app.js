@@ -19,7 +19,7 @@ const server = http.createServer(app);
 // Tạo socket server
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:8000"],
+    origin: ["http://localhost:3000", "http://localhost:8081"],
     credentials: true,
     methods: ["GET", "POST"],
   },
@@ -36,14 +36,14 @@ app.use(express.json());
 
 // Cấu hình CORS
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://localhost:8000"],
+  origin: ["http://localhost:3000", "http://localhost:8081"],
   credentials: true,
 };
 app.use(cors(corsOptions));
 
 // Middleware xử lý CORS cho tất cả request
 app.use((req, res, next) => {
-  const allowedOrigins = ["http://localhost:3000", "http://localhost:8000"];
+  const allowedOrigins = ["http://localhost:3000", "http://localhost:8081"];
   const origin = req.headers.origin;
 
   if (allowedOrigins.includes(origin)) {
