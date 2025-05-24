@@ -1,8 +1,30 @@
 const User = require("../schemas/UserDetails");
 const Friendship = require("../schemas/Friendship");
+const Message = require("../schemas/Messages");
 
 require("dotenv").config();
 
+// Tạo thông báo cho lời mời kết bạn được chấp nhận
+const createFriendRequestNotification = async (options) => {
+  try {
+    const { senderId, receiverId, content } = options;
+
+    // Tạo tin nhắn thông báo
+    const notification = await Message.create({
+      sender_id: receiverId, // Người chấp nhận lời mời (receiver) là người gửi thông báo
+      receiver_id: senderId, // Người đã gửi lời mời trước đó nhận được thông báo
+      content: content || "Đã chấp nhận lời mời kết bạn của bạn",
+      type: "notify", // Loại thông báo
+      chat_type: "private",
+      status: "sent",
+    });
+
+    return notification;
+  } catch (error) {
+    console.error("Lỗi khi tạo thông báo kết bạn:", error);
+    return null;
+  }
+};
 const FriendshipController = {
   // Kiểm tra trạng thái chặn giữa hai người dùng
   checkBlockingStatus: async (req, res) => {
@@ -74,9 +96,6 @@ const FriendshipController = {
   checkFriendStatus: async (req, res) => {
     const { user_id, friend_id } = req.body;
     try {
-      console.log("User ID: ", user_id);
-      console.log("Friend ID: ", friend_id);
-
       const friendship = await Friendship.findOne({
         $or: [
           { sender_id: user_id, receiver_id: friend_id },
@@ -278,13 +297,25 @@ const FriendshipController = {
         });
       }
 
+      // Cập nhật trạng thái kết bạn thành "accepted"
       friendship.status = "accepted";
       await friendship.save();
+
+      // Lấy thông tin người dùng để hiển thị trong thông báo
+      const receiver = await User.findById(receiverId);
+
+      // Tạo thông báo cho người gửi lời mời kết bạn
+      const notification = await createFriendRequestNotification({
+        senderId,
+        receiverId,
+        content: `${receiver.full_name} đã chấp nhận lời mời kết bạn của bạn`,
+      });
 
       res.json({
         status: "ok",
         message: "Lời mời kết bạn đã được chấp nhận",
         friendship,
+        notification,
       });
     } catch (error) {
       res.status(500).json({ status: "error", message: error.message });
@@ -294,8 +325,6 @@ const FriendshipController = {
   //  Từ chối / Hủy lời mời kết bạn
   cancelFriendRequest: async (req, res) => {
     const { senderId, receiverId } = req.body;
-    console.log("Sender ID: ", senderId);
-    console.log("Receiver ID: ", receiverId);
 
     try {
       const friendship = await Friendship.findOneAndDelete({
@@ -320,9 +349,6 @@ const FriendshipController = {
   checkFriendStatus: async (req, res) => {
     const { user_id, friend_id } = req.body;
     try {
-      console.log("User ID: ", user_id);
-      console.log("Friend ID: ", friend_id);
-
       const friendship = await Friendship.findOne({
         $or: [
           { sender_id: user_id, receiver_id: friend_id },
