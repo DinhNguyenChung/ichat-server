@@ -19,7 +19,7 @@ const server = http.createServer(app);
 // Tạo socket server
 const io = new Server(server, {
   cors: {
-    origin: ["https://ichatweb.vercel.app", "http://localhost:8081"],
+    origin: ["https://ichatweb.vercel.app", "http://localhost:8081","http://localhost:3000"],
     credentials: true,
     methods: ["GET", "POST"],
   },
@@ -36,14 +36,14 @@ app.use(express.json());
 
 // Cấu hình CORS
 const corsOptions = {
-  origin: ["https://ichatweb.vercel.app", "http://localhost:8081"],
+  origin: ["https://ichatweb.vercel.app", "http://localhost:8081","http://localhost:3000"],
   credentials: true,
 };
 app.use(cors(corsOptions));
 
 // Middleware xử lý CORS cho tất cả request
 app.use((req, res, next) => {
-  const allowedOrigins = ["https://ichatweb.vercel.app", "http://localhost:8081"];
+  const allowedOrigins = ["https://ichatweb.vercel.app", "http://localhost:8081","http://localhost:3000"];
   const origin = req.headers.origin;
 
   if (allowedOrigins.includes(origin)) {
