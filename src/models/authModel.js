@@ -25,7 +25,7 @@ const authModel = {
         dob,
         gender,
         avatar_path:
-          "https://nhutanhngxx.s3.ap-southeast-1.amazonaws.com/sdwy-1744418405602-blob",
+          "https://nguyenchungs3.s3.ap-southeast-2.amazonaws.com/avatar-user.jpg",
       });
       return newUser;
     } catch (error) {
